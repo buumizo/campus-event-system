@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusHub — Event Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!--  -->
+<div class="screen active" id="screen-home">
+  <nav>
+    <div class="logo">Campus<span>Hub</span></div>
+    <div class="nav-right">
+      <span style="font-size:.84rem;color:var(--muted)">Hi, Buumi 👋</span>
+      <div class="avatar" title="Profile">BC</div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">🎓 ZCAS UNIVERSITY </div>
+      <h1>Discover Campus Events</h1>
+      <p>Workshops, seminars, sports, clubs — everything happening on campus, all in one place.</p>
+      <div class="hero-search">
+        <input type="text" id="search-input" placeholder="Search events, clubs, topicsâ€¦" oninput="filterEvents()">
+        <button onclick="filterEvents()">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('workshop', this)">🔧 Workshops</button>
+    <button class="filter-btn" onclick="setFilter('seminar', this)">🎤 Seminars</button>
+    <button class="filter-btn" onclick="setFilter('sports', this)">⚽ Sports</button>
+    <button class="filter-btn" onclick="setFilter('club', this)">🎭 Clubs</button>
+    <span class="filter-count" id="event-count"></span>
+  </div>
+
+  <div class="events-grid" id="events-grid"></div>
+
+  <div class="bottom-nav">
+    <button class="bnav-item active" onclick="goHome()">
+      <span class="bnav-icon">🏠</span><span>Home</span>
+    </button>
+    <button class="bnav-item" onclick="goMyEvents()">
+      <span class="bnav-icon">📋</span><span>My Events</span>
+    </button>
+    <button class="bnav-item" onclick="showToast('Profile feature coming soon!')">
+      <span class="bnav-icon">👤</span><span>Profile</span>
+    </button>
+  </div>
+</div>
+
+<!--  -->
+<div class="screen" id="screen-my">
+  <nav>
+    <div class="logo">Campus<span>Hub</span></div>
+    <div class="nav-right">
+      <div class="avatar">BC</div>
+    </div>
+  </nav>
+
+  <div class="screen-header">
+    <h2>My Events</h2>
+    <p>Events you've registered for</p>
+  </div>
+
+  <div class="my-events-list" id="my-events-list">
+    <div class="empty-state" id="my-empty">
+      <div class="emoji">📭</div>
+      <p>No registered events yet.<br>Browse events and sign up!</p>
+      <button class="nav-btn" style="margin-top:16px" onclick="goHome()">Explore Events</button>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="bnav-item" onclick="goHome()">
+      <span class="bnav-icon">🏠</span><span>Home</span>
+    </button>
+    <button class="bnav-item active" onclick="goMyEvents()">
+      <span class="bnav-icon">📋</span><span>My Events</span>
+    </button>
+    <button class="bnav-item" onclick="showToast('Profile feature coming soon!')">
+      <span class="bnav-icon">👤</span><span>Profile</span>
+    </button>
+  </div>
+</div>
+
+<!-- -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <h2 id="reg-modal-title">Register for Event</h2>
+    <p class="sub">Fill in your details to secure your spot</p>
+
+    <div class="modal-event-summary">
+      <div class="modal-event-emoji" id="reg-emoji"></div>
+      <div class="modal-event-info">
+        <h4 id="reg-event-name"></h4>
+        <p id="reg-event-meta"></p>
+      </div>
+    </div>
+
+    <div id="reg-form-area">
+      <div class="form-row" id="row-name">
+        <label for="reg-name">Full Name *</label>
+        <input type="text" id="reg-name" placeholder="e.g. Thabo Mwila" oninput="clearErr('row-name')">
+        <span class="form-error">Please enter your full name</span>
+      </div>
+      <div class="form-row" id="row-email">
+        <label for="reg-email">Student Email *</label>
+        <input type="email" id="reg-email" placeholder="e.g. t.mwanza@unza.zm" oninput="clearErr('row-email')">
+        <span class="form-error">Please enter a valid email</span>
+      </div>
+      <div class="form-row">
+        <label for="reg-program">Programme / Department</label>
+        <select id="reg-program">
+          <option value="">Select department</option>
+          <option>Computer Science</option>
+          <option>Business Administration</option>
+          <option>Engineering</option>
+          <option>Medicine</option>
+          <option>Law</option>
+          <option>Education</option>
+          <option>Natural Sciences</option>
+          <option>Social Sciences</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="reg-special">Special Requirements (optional)</label>
+        <textarea id="reg-special" placeholder="e.g. wheelchair access, dietary needs…"></textarea>
+        <span class="hint">We'll do our best to accommodate.</span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('modal-register')">Cancel</button>
+        <button class="btn-primary" onclick="submitRegistration()">Confirm Registration</button>
+      </div>
+    </div>
+
+    <div id="reg-success" style="display:none">
+      <div class="success-card">
+        <div class="success-icon">🎉</div>
+        <h3>You're Registered!</h3>
+        <p>Check your email for confirmation details. See you there!</p>
+      </div>
+      <button class="btn-primary" style="margin-top:20px;display:block;width:100%"
+        onclick="closeModal('modal-register')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- -->
+<div class="modal-overlay" id="modal-feedback">
+  <div class="modal">
+    <h2 id="fb-modal-title">Rate &amp; Review</h2>
+    <p class="sub">Your feedback helps improve future events</p>
+
+    <div class="modal-event-summary">
+      <div class="modal-event-emoji" id="fb-emoji"></div>
+      <div class="modal-event-info">
+        <h4 id="fb-event-name"></h4>
+        <p id="fb-event-meta"></p>
+      </div>
+    </div>
+
+    <div id="fb-form-area">
+      <label style="font-size:.88rem;font-weight:500">Overall Rating *</label>
+      <div class="star-picker" id="star-picker">
+        <button onclick="setStar(1)">★</button>
+        <button onclick="setStar(2)">★</button>
+        <button onclick="setStar(3)">★</button>
+        <button onclick="setStar(4)">★</button>
+        <button onclick="setStar(5)">★</button>
+      </div>
+      <div class="star-label" id="star-label">Tap a star to rate</div>
+
+      <div style="margin-top:18px;">
+        <label style="font-size:.88rem;font-weight:500">What went well? (select all that apply)</label>
+        <div class="tag-pills">
+          <span class="tag-pill" onclick="toggleTag(this)">Well organised</span>
+          <span class="tag-pill" onclick="toggleTag(this)">Informative</span>
+          <span class="tag-pill" onclick="toggleTag(this)">Engaging speaker</span>
+          <span class="tag-pill" onclick="toggleTag(this)">Good venue</span>
+          <span class="tag-pill" onclick="toggleTag(this)">Good timing</span>
+          <span class="tag-pill" onclick="toggleTag(this)">Networking opportunity</span>
+        </div>
+      </div>
+
+      <div class="form-row" id="row-fb-text">
+        <label for="fb-text">Written comments (optional)</label>
+        <textarea id="fb-text" placeholder="Tell us what you think…"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('modal-feedback')">Cancel</button>
+        <button class="btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+      </div>
+    </div>
+
+    <div id="fb-success" style="display:none">
+      <div class="success-card">
+        <div class="success-icon">🙏</div>
+        <h3>Thanks for your feedback!</h3>
+        <p>Your review helps us make future events even better.</p>
+      </div>
+      <button class="btn-primary" style="margin-top:20px;display:block;width:100%"
+        onclick="closeModal('modal-feedback')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- -->
+<div id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+
